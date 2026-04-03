@@ -32,9 +32,23 @@ for k in k_range:
     km = KMeans(n_clusters=k, random_state=42, n_init=10)
     km.fit(X_2d_scaled) #Changed from X_2d to X_2d_scaled to apply scaled data for elbow calculation
     inertias.append(km.inertia_)
+
+#Added the following code to make sure the elbow method is actually used and detecting the elbow using the kneedle method
+x = np.array(list(k_range), dtype=float)
+y = np.array(inertias, dtype=float)
+
+p1 = np.array([x[0], y[0]])
+p2 = np.array([x[-1], y[-1]])
+line_vec = p2 - p1
+distances = []
+for i in range(len(x)):
+    point = np.array([x[i], y[i]])
+    cross = np.cross(line_vec, p1 - point)
+    dist = np.abs(cross) / np.linalg.norm(line_vec)
+    distances.append(dist)
+K_OPTIMAL = int(x[np.argmax(distances)])
     
-# ── 4. Fit final model (k=5 is the classic elbow for this dataset) ────────────
-K_OPTIMAL = 5
+# ── 4. Fit final model ────────────
 km_2d = KMeans(n_clusters=K_OPTIMAL, random_state=42, n_init=10)
 df['Cluster_2D'] = km_2d.fit_predict(X_2d_scaled) #Changed from X_2d to X_2d_scaled to apply scaled data for final model
  
@@ -131,7 +145,7 @@ ax_summary.legend(fontsize=7.5, labelcolor='white', facecolor='#1A1D27', edgecol
 fig.suptitle('Mall Customer Segmentation — K-Means Clustering (k=5)',
              color='white', fontsize=15, fontweight='bold', y=0.98)
  
-plt.savefig('kmeans_clusters_v2.png', dpi=150, #Just changed the name of the saved png to clarify differences between version outputs
+plt.savefig('kmeans_clusters_v3.png', dpi=150, #Just changed the name of the saved png to clarify differences between version outputs
             bbox_inches='tight', facecolor=fig.get_facecolor())
 plt.close()
 print("\n✅ Plot saved as kmeans_clusters.png")
